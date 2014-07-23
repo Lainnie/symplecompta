@@ -1,6 +1,7 @@
 require 'pp'
 class UsersController < ApplicationController
-  skip_before_filter :authenticate, only: [:signin, :signup]
+  skip_before_filter :authenticate, except: [:index]
+
   def index
     user = User.first
     render json: user, status: 200
@@ -17,9 +18,9 @@ class UsersController < ApplicationController
   end
 
   def signin
-    user = User.find_by(
-      email: user_params[:email],
-      password: User.encrypt_password(user_params[:password])
+    user = User.login(
+      user_params[:email],
+      user_params[:password]
     )
     if user
       set_authorization user.authentication_token
@@ -29,6 +30,11 @@ class UsersController < ApplicationController
     end
   end
 
+  def logout
+    unset_authorization
+    render nothing: true, status: 204
+  end
+
   private
   def user_params
     params.require(:user).permit(:email, :password)
@@ -36,5 +42,10 @@ class UsersController < ApplicationController
 
   def set_authorization(token)
     self.headers['Authorization'] = token_header(token)
+  end
+
+  def unset_authorization
+    self.request.env['HTTP_AUTHORIZATION'] = nil
+    self.headers['Authorization'] = nil
   end
 end

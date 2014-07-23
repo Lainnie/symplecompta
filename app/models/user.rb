@@ -2,6 +2,7 @@ require 'digest/sha1'
 class User < ActiveRecord::Base
 
   before_save :ensure_authentication_token, :encrypt
+  validates :email, :password, presence: true
 
   def ensure_authentication_token
     if authentication_token.blank?
@@ -11,6 +12,10 @@ class User < ActiveRecord::Base
 
   def encrypt
     self.password = Digest::SHA1.hexdigest(self.password)
+  end
+
+  def self.login(email, password)
+    find_by(email: email, password: encrypt_password(password))
   end
 
   def self.encrypt_password(password)
