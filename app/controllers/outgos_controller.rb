@@ -1,3 +1,4 @@
+require 'pp'
 class OutgosController < ApplicationController
   before_action :set_outgo, only: [:show, :edit, :update, :destroy]
 
@@ -5,6 +6,7 @@ class OutgosController < ApplicationController
   # GET /outgos.json
   def index
     @outgos = Outgo.all
+    render json: @outgos, status: 200
   end
 
   # GET /outgos/1
@@ -26,28 +28,20 @@ class OutgosController < ApplicationController
   def create
     @outgo = Outgo.new(outgo_params)
 
-    respond_to do |format|
-      if @outgo.save
-        format.html { redirect_to @outgo, notice: 'Outgo was successfully created.' }
-        format.json { render :show, status: :created, location: @outgo }
-      else
-        format.html { render :new }
-        format.json { render json: @outgo.errors, status: :unprocessable_entity }
-      end
+    if @outgo.save
+      render json: @outgo, status: :created, location: @outgo
+    else
+      render json: @outgo.errors, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /outgos/1
   # PATCH/PUT /outgos/1.json
   def update
-    respond_to do |format|
-      if @outgo.update(outgo_params)
-        format.html { redirect_to @outgo, notice: 'Outgo was successfully updated.' }
-        format.json { render :show, status: :ok, location: @outgo }
-      else
-        format.html { render :edit }
-        format.json { render json: @outgo.errors, status: :unprocessable_entity }
-      end
+    if @outgo.update(outgo_params)
+      render json: @outgo, status: :ok, location: @outgo
+    else
+      render json: @outgo.errors, status: :unprocessable_entity
     end
   end
 
@@ -55,10 +49,7 @@ class OutgosController < ApplicationController
   # DELETE /outgos/1.json
   def destroy
     @outgo.destroy
-    respond_to do |format|
-      format.html { redirect_to outgos_url, notice: 'Outgo was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    render nothing: true, status: 204
   end
 
   private
@@ -69,6 +60,6 @@ class OutgosController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def outgo_params
-      params[:outgo]
+      params.require(:outgo).permit(:user, :title, :price)
     end
 end

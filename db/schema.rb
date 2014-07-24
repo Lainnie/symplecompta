@@ -11,7 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140722184713) do
+ActiveRecord::Schema.define(version: 20140723214247) do
+
+  create_table "outgos", force: true do |t|
+    t.string   "title"
+    t.integer  "price_cents",    default: 0,     null: false
+    t.string   "price_currency", default: "EUR", null: false
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "outgos", ["user_id"], name: "index_outgos_on_user_id", using: :btree
 
   create_table "users", force: true do |t|
     t.string   "email",                default: "", null: false

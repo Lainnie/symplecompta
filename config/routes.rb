@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   root 'home#index'
   resources :users
+  resources :outgos
   post 'users/signin' => 'users#signin'
   post 'users/signup' => 'users#signup'
   delete 'users/logout' => 'users#logout'
