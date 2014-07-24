@@ -3,6 +3,9 @@ class User < ActiveRecord::Base
 
   before_save :ensure_authentication_token, :encrypt
   validates :email, :password, presence: true
+  validates :email, uniqueness: true
+  has_many :incomes
+  has_many :outgos
 
   def ensure_authentication_token
     if authentication_token.blank?

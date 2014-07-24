@@ -8,5 +8,15 @@ FactoryGirl.define do
     factory :user_invalid do
       password ''
     end
+    factory :user_deal do
+      ignore do
+        deal 4
+      end
+
+      after(:create) do |user, ev|
+        FactoryGirl.create_list(:income, ev.deal, user: user)
+        FactoryGirl.create_list(:outgo, ev.deal, user: user)
+      end
+    end
   end
 end

@@ -5,6 +5,7 @@ class IncomesController < ApplicationController
   # GET /incomes.json
   def index
     @incomes = Income.all
+    render json: @incomes, status: 200
   end
 
   # GET /incomes/1
@@ -26,28 +27,20 @@ class IncomesController < ApplicationController
   def create
     @income = Income.new(income_params)
 
-    respond_to do |format|
-      if @income.save
-        format.html { redirect_to @income, notice: 'Income was successfully created.' }
-        format.json { render :show, status: :created, location: @income }
-      else
-        format.html { render :new }
-        format.json { render json: @income.errors, status: :unprocessable_entity }
-      end
+    if @income.save
+      render json: @income, status: :created, location: @income
+    else
+      render json: @income.errors, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /incomes/1
   # PATCH/PUT /incomes/1.json
   def update
-    respond_to do |format|
-      if @income.update(income_params)
-        format.html { redirect_to @income, notice: 'Income was successfully updated.' }
-        format.json { render :show, status: :ok, location: @income }
-      else
-        format.html { render :edit }
-        format.json { render json: @income.errors, status: :unprocessable_entity }
-      end
+    if @income.update(income_params)
+      render json: @income, status: :ok, location: @income
+    else
+      render json: @income.errors, status: :unprocessable_entity
     end
   end
 
@@ -55,10 +48,7 @@ class IncomesController < ApplicationController
   # DELETE /incomes/1.json
   def destroy
     @income.destroy
-    respond_to do |format|
-      format.html { redirect_to incomes_url, notice: 'Income was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    render nothing: true, status: 204
   end
 
   private
@@ -69,6 +59,6 @@ class IncomesController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def income_params
-      params[:income]
+      params.require(:income).permit(:user, :title, :tax, :price)
     end
 end

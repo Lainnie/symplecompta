@@ -23,12 +23,17 @@ RSpec.describe IncomesController, :type => :controller do
   # This should return the minimal set of attributes required to create a valid
   # Income. As you add validations to Income, be sure to
   # adjust the attributes here as well.
+  before do
+    user = FactoryGirl.create(:user)
+    request.env['HTTP_AUTHORIZATION'] = token_header(user.authentication_token)
+  end
+
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    FactoryGirl.attributes_for(:income)
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    FactoryGirl.attributes_for(:income_invalid)
   }
 
   # This should return the minimal set of values that should be in the session
@@ -38,14 +43,15 @@ RSpec.describe IncomesController, :type => :controller do
 
   describe "GET index" do
     it "assigns all incomes as @incomes" do
-      income = Income.create! valid_attributes
+      Income.create! valid_attributes
       get :index, {}, valid_session
-      expect(assigns(:incomes)).to eq([income])
+      expect(response).to have_http_status(200)
+      expect(response.content_type).to eq(Mime::JSON)
     end
   end
 
   describe "GET show" do
-    it "assigns the requested income as @income" do
+    xit "assigns the requested income as @income" do
       income = Income.create! valid_attributes
       get :show, {:id => income.to_param}, valid_session
       expect(assigns(:income)).to eq(income)
@@ -53,14 +59,14 @@ RSpec.describe IncomesController, :type => :controller do
   end
 
   describe "GET new" do
-    it "assigns a new income as @income" do
+    xit "assigns a new income as @income" do
       get :new, {}, valid_session
       expect(assigns(:income)).to be_a_new(Income)
     end
   end
 
   describe "GET edit" do
-    it "assigns the requested income as @income" do
+    xit "assigns the requested income as @income" do
       income = Income.create! valid_attributes
       get :edit, {:id => income.to_param}, valid_session
       expect(assigns(:income)).to eq(income)
@@ -73,6 +79,8 @@ RSpec.describe IncomesController, :type => :controller do
         expect {
           post :create, {:income => valid_attributes}, valid_session
         }.to change(Income, :count).by(1)
+        expect(response).to have_http_status(201)
+        expect(response.content_type).to eq(Mime::JSON)
       end
 
       it "assigns a newly created income as @income" do
@@ -81,7 +89,7 @@ RSpec.describe IncomesController, :type => :controller do
         expect(assigns(:income)).to be_persisted
       end
 
-      it "redirects to the created income" do
+      xit "redirects to the created income" do
         post :create, {:income => valid_attributes}, valid_session
         expect(response).to redirect_to(Income.last)
       end
@@ -95,7 +103,8 @@ RSpec.describe IncomesController, :type => :controller do
 
       it "re-renders the 'new' template" do
         post :create, {:income => invalid_attributes}, valid_session
-        expect(response).to render_template("new")
+        expect(response).to have_http_status(422)
+        expect(response.content_type).to eq(Mime::JSON)
       end
     end
   end
@@ -103,14 +112,18 @@ RSpec.describe IncomesController, :type => :controller do
   describe "PUT update" do
     describe "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        FactoryGirl.attributes_for(:new_attributes_income)
       }
 
       it "updates the requested income" do
-        income = Income.create! valid_attributes
-        put :update, {:id => income.to_param, :income => new_attributes}, valid_session
-        income.reload
-        skip("Add assertions for updated state")
+        income = FactoryGirl.create(:income)
+        put :update,
+              :id => income.to_param,
+              :income => new_attributes
+        expect{income.reload}
+        .to change{income.title}
+        .from(valid_attributes[:title])
+        .to(new_attributes[:title])
       end
 
       it "assigns the requested income as @income" do
@@ -119,7 +132,7 @@ RSpec.describe IncomesController, :type => :controller do
         expect(assigns(:income)).to eq(income)
       end
 
-      it "redirects to the income" do
+      xit "redirects to the income" do
         income = Income.create! valid_attributes
         put :update, {:id => income.to_param, :income => valid_attributes}, valid_session
         expect(response).to redirect_to(income)
@@ -136,7 +149,8 @@ RSpec.describe IncomesController, :type => :controller do
       it "re-renders the 'edit' template" do
         income = Income.create! valid_attributes
         put :update, {:id => income.to_param, :income => invalid_attributes}, valid_session
-        expect(response).to render_template("edit")
+        expect(response).to have_http_status(422)
+        expect(response.content_type).to eq(Mime::JSON)
       end
     end
   end
@@ -152,7 +166,7 @@ RSpec.describe IncomesController, :type => :controller do
     it "redirects to the incomes list" do
       income = Income.create! valid_attributes
       delete :destroy, {:id => income.to_param}, valid_session
-      expect(response).to redirect_to(incomes_url)
+      expect(response).to have_http_status(204)
     end
   end
 
